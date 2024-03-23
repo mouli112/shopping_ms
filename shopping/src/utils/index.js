@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
-const { APP_SECRET } = require("../config");
+const axios = require("axios");
+require("dotenv").config();
 
 //Utility functions
 module.exports.GenerateSalt = async () => {
@@ -22,7 +22,7 @@ module.exports.ValidatePassword = async (
 
 module.exports.GenerateSignature = async (payload) => {
   try {
-    return await jwt.sign(payload, APP_SECRET, { expiresIn: "30d" });
+    return await jwt.sign(payload, process.env.APP_SECRET, { expiresIn: "30d" });
   } catch (error) {
     console.log(error);
     return error;
@@ -32,8 +32,7 @@ module.exports.GenerateSignature = async (payload) => {
 module.exports.ValidateSignature = async (req) => {
   try {
     const signature = req.get("Authorization");
-    console.log(signature);
-    const payload = await jwt.verify(signature.split(" ")[1], APP_SECRET);
+    const payload = await jwt.verify(signature.split(" ")[1], process.env.APP_SECRET);
     req.user = payload;
     return true;
   } catch (error) {
@@ -49,3 +48,10 @@ module.exports.FormateData = (data) => {
     throw new Error("Data Not found!");
   }
 };
+
+module.exports.PublishCustomerEvent = async(payload) => {
+  axios.post('http://localhost:8000/customer/app-events',{
+   payload
+  })
+}
+

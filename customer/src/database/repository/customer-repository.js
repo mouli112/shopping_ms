@@ -141,12 +141,9 @@ class CustomerRepository {
     }
   }
 
-  async AddCartItem(customerId,{_id, name, price, banner}) {
+  async AddCartItem(customerId,{_id, name, price, banner},qty ,isRemove) {
     try {
-      const profile = await CustomerModel.findById(customerId).populate(
-        "cart"
-      );
-
+      const profile = await CustomerModel.findById(customerId).populate('cart');;
       if (profile) {
         const cartItem = {
           product: {_id, name, price, banner},
@@ -208,7 +205,6 @@ class CustomerRepository {
 
         return profileResult;
       }
-
       throw new Error("Unable to add to order!");
     } catch (err) {
       throw new APIError(
