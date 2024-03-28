@@ -31,8 +31,8 @@ class ShoppingRepository {
  async AddCartItem(customerId,item,qty,isRemove) {
     try {
       const cart = await CartModel.findOne({customerId: customerId})
-      const {_id} = item;
-      if (cart) {
+      const { _id } = item;
+      if ( cart ) {
         let isExist = false;
 
         let cartItems = cart.items;
@@ -55,8 +55,10 @@ class ShoppingRepository {
           if (!isExist && !isRemove) {
             cartItems.push(cartItems);
           }
+          
           cart.items = cartItems;
-          return await cart.save;
+          return await cart.save();
+
         } else {
           return await CartModel.create({
             customerId,
@@ -105,7 +107,9 @@ class ShoppingRepository {
                     cart.items = [];
                     
                     const orderResult = await order.save();
-    
+
+                    await cart.save();
+
                     return orderResult;
                 }
             }

@@ -1,8 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const axios = require("axios");
-require("dotenv").config();
-
+const { APP_SECRET,MESSAGE_BROKER_URL,EXCHANGE_NAME,QUEUE_NAME,SHOPPING_BINDING_KEY } = require('../utils');
+const amqplib = require('amqplib');
 //Utility functions
 module.exports.GenerateSalt = async () => {
   return await bcrypt.genSalt();
@@ -22,7 +21,7 @@ module.exports.ValidatePassword = async (
 
 module.exports.GenerateSignature = async (payload) => {
   try {
-    return await jwt.sign(payload, process.env.APP_SECRET, { expiresIn: "30d" });
+    return await jwt.sign(payload, APP_SECRET, { expiresIn: "30d" });
   } catch (error) {
     console.log(error);
     return error;
@@ -32,7 +31,7 @@ module.exports.GenerateSignature = async (payload) => {
 module.exports.ValidateSignature = async (req) => {
   try {
     const signature = req.get("Authorization");
-    const payload = await jwt.verify(signature.split(" ")[1], process.env.APP_SECRET);
+    const payload = await jwt.verify(signature.split(" ")[1], APP_SECRET);
     req.user = payload;
     return true;
   } catch (error) {
@@ -49,9 +48,36 @@ module.exports.FormateData = (data) => {
   }
 };
 
-module.exports.PublishCustomerEvent = async(payload) => {
-  axios.post('http://localhost:8000/customer/app-events',{
-   payload
+/* ---------------  message broker ------------------ */
+
+//create a channel
+module.exports.CreateChannel = async () => {
+  try {
+    const connection = await amqplib.connect(MESSAGE_BROKER_URL)
+    const channel = await connection.createChannel()
+    await channel.assertExchange(EXCHANGE_NAME, 'direct', false);
+    return channel
+  } catch (error) {
+    throw error
+  }
+}
+//publish messages
+module.exports.PublishMessage = async (channel, binding_key, message) => {
+  try {
+    await channel.publish(EXCHANGE_NAME,binding_key,Buffer.from(message))
+    console.log('Message has been sent'+message);
+  } catch (error) {
+    throw error
+  }
+}
+//subscribe messages
+module.exports.SubscribeMessage = async(channel, service) => {
+  const appQueue = await channel.assertQueue(QUEUE_NAME);
+  channel.bindQueue(appQueue.queue, EXCHANGE_NAME , SHOPPING_BINDING_KEY);
+  channel.consume(appQueue.queue, data => {
+    console.log('receieved data');
+    console.log(data.content.toString());
+    channel.ack(data);
   })
 }
 
