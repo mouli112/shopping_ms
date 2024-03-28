@@ -5,11 +5,9 @@ const { APIError, BadRequestError } = require('../utils/app-errors')
 
 // All Business logic will be here
 class CustomerService {
-
     constructor(){
         this.repository = new CustomerRepository();
     }
-
     async SignIn(userInputs){
 
         const { email, password } = userInputs;
@@ -32,11 +30,8 @@ class CustomerService {
 
         } catch (err) {
             throw new APIError('Data Not found', err)
-        }
-
-       
+        } 
     }
-
     async SignUp(userInputs){
         
         const { email, password, phone } = userInputs;
@@ -132,7 +127,7 @@ class CustomerService {
     async ManageOrder(customerId, order){
         try {
             const orderResult = await this.repository.AddOrderToProfile(customerId, order);
-            console.log("orderResult",orderResult);
+            // console.log("orderResult",orderResult);
             return FormateData(orderResult);
         } catch (err) {
             throw new APIError('Data Not found', err)
@@ -140,12 +135,8 @@ class CustomerService {
     }
 
     async SubscribeEvents(payload){
- 
-        const { event, data } =  payload.data;
-        //console.log("event and data", event, data);
+        const { event, data } =  payload;
         const { userId, product, order, qty } = data;
-        //console.log({userId:userId,product:product,order:order,qty:qty});
-
         switch(event){
             case 'ADD_TO_WISHLIST':
             case 'REMOVE_FROM_WISHLIST':
