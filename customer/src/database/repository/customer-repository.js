@@ -191,6 +191,7 @@ class CustomerRepository {
 
   async AddOrderToProfile(customerId, order) {
     try {
+      // console.log("customerId,order",customerId,order);
       const profile = await CustomerModel.findById(customerId);
 
       if (profile) {

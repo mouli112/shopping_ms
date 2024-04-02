@@ -64,6 +64,7 @@ module.exports.CreateChannel = async () => {
     throw error
   }
 }
+
 //publish messages
 module.exports.PublishMessage = async (channel, binding_key, message) => {
   try {
@@ -73,6 +74,7 @@ module.exports.PublishMessage = async (channel, binding_key, message) => {
     throw error
   }
 }
+
 //subscribe messages
 module.exports.SubscribeMessage = async(channel, service ,binding_key) => {
   const appQueue = await channel.assertQueue(QUEUE_NAME);
@@ -80,6 +82,7 @@ module.exports.SubscribeMessage = async(channel, service ,binding_key) => {
   channel.consume(appQueue.queue, data => {
     console.log('receieved data');
     console.log(data.content.toString());
+    service.SubscribeEvents(data.content.toString());
     channel.ack(data);
   })
 }

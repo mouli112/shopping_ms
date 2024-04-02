@@ -3,7 +3,7 @@ require('dotenv').config();
 const PORT = process.env.PORT;
 const { databaseConnection } = require('./database');
 const expressApp = require('./express-app');
-const { CreateChannel } = require('./utils')
+const { CreateChannel } = require('./utils');
 const StartServer = async() => {
 
     const app = express();

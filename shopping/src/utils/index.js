@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { APP_SECRET,MESSAGE_BROKER_URL,EXCHANGE_NAME,QUEUE_NAME,SHOPPING_BINDING_KEY } = require('../utils');
+const { APP_SECRET, MESSAGE_BROKER_URL, EXCHANGE_NAME, QUEUE_NAME, SHOPPING_BINDING_KEY } = require('../config');
 const amqplib = require('amqplib');
+
 //Utility functions
 module.exports.GenerateSalt = async () => {
   return await bcrypt.genSalt();
@@ -77,6 +78,7 @@ module.exports.SubscribeMessage = async(channel, service) => {
   channel.consume(appQueue.queue, data => {
     console.log('receieved data');
     console.log(data.content.toString());
+    service.SubscribeEvents(data.content.toString());
     channel.ack(data);
   })
 }

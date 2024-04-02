@@ -95,20 +95,23 @@ module.exports = (app,channel) => {
 
 
     app.put('/cart',UserAuth, async (req,res,next) => {
-        const { _id } = req.user;
         try {  
-        const { data } = await service.GetProductPayload(_id,{ productId: req.body._id, qty: req.body.qty },'ADD_TO_CART'); 
-        // PublishCustomerEvent(data);
-        PublishMessage(channel, CUSTOMER_BINDING_KEY, JSON.stringify(data))
-        // PublishShoppingEvent(data);
-        PublishMessage(channel, SHOPPING_BINDING_KEY, JSON.stringify(data))
-
-        const response = {
-            product: data.data.product,
-            unit: data.data.qty
-        }
-    
-            return res.status(200).json(response);
+            const { _id } = req.user;
+            const { data } = await service.GetProductPayload(
+              _id,
+              { productId: req.body._id, qty: req.body.qty },
+              "ADD_TO_CART"
+            );
+        
+            // PublishCustomerEvent(data);
+            // PublishShoppingEvent(data);
+        
+            PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+            PublishMessage(channel, SHOPPING_SERVICE, JSON.stringify(data));
+        
+            const response = { product: data.data.product, unit: data.data.qty };
+        
+            res.status(200).json(response);
             
         } catch (err) {
             next(err)

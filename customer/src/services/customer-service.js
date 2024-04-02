@@ -17,9 +17,8 @@ class CustomerService {
             const existingCustomer = await this.repository.FindCustomer({ email});
 
             if(existingCustomer){
-            
+
                 const validPassword = await ValidatePassword(password, existingCustomer.password, existingCustomer.salt);
-                
                 if(validPassword){
                     const token = await GenerateSignature({ email: existingCustomer.email, _id: existingCustomer._id});
                     return FormateData({id: existingCustomer._id, token });
@@ -65,7 +64,6 @@ class CustomerService {
         } catch (err) {
             throw new APIError('Data Not found', err)
         }
-        
     
     }
 
@@ -127,7 +125,7 @@ class CustomerService {
     async ManageOrder(customerId, order){
         try {
             const orderResult = await this.repository.AddOrderToProfile(customerId, order);
-            // console.log("orderResult",orderResult);
+            console.log("orderResult",orderResult);
             return FormateData(orderResult);
         } catch (err) {
             throw new APIError('Data Not found', err)
@@ -135,8 +133,12 @@ class CustomerService {
     }
 
     async SubscribeEvents(payload){
+        payload = JSON.parse(payload);
+        console.log("payload recieved at suscribe-events",payload);
         const { event, data } =  payload;
+        console.log("data at payload",data);
         const { userId, product, order, qty } = data;
+        console.log("userId,order",userId,order);
         switch(event){
             case 'ADD_TO_WISHLIST':
             case 'REMOVE_FROM_WISHLIST':

@@ -3,7 +3,7 @@ const UserAuth = require("./middlewares/auth");
 const { SubscribeMessage } = require('../utils');
 module.exports = (app,channel) => {
   const service = new CustomerService();
-  SubscribeMessage(channel,service)
+  SubscribeMessage(channel,service);
   app.post("/signup", async (req, res, next) => {
     try {
       const { email, password, phone } = req.body;
